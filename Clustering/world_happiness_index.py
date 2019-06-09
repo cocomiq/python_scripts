@@ -19,6 +19,9 @@ from sklearn.cluster import (MeanShift, MiniBatchKMeans, SpectralClustering, Agg
 # 1. Download a dataset (using pandas)
 # =====================================================================
 
+#url = "https://s3.amazonaws.com/happiness-report/2019/Chapter2OnlineData.xls"
+#df = pd.read_excel(url)
+
 df = pd.read_excel(r"C:\Users\acikgozs\Documents\Chapter2OnlineData.xls")
 
 
