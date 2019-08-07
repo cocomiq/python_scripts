@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.plotly as py 
 import plotly.graph_objs as go
+
 from itertools import cycle
 
 from sklearn import preprocessing

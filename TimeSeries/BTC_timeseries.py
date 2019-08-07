@@ -16,7 +16,8 @@ Data is gathered from Replica.Invoice table using ts_invoice.sql file.
 import pandas as pd
 import numpy as np
 
-import matplotlib as plt
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import seaborn as sns
 
 url = "http://www.cryptodatadownload.com/cdd/gemini_BTCUSD_1hr.csv"
@@ -40,8 +41,18 @@ df.set_index("Date", inplace = True)
 # 3. Visualize data
 # =====================================================================
 
-sns.set(rc = {"figure.figsize":(12, 5)})
-
-sns.boxplot(x = df["Date"], data = df)
+sns.set(rc = {"figure.figsize":(12, 7)})
 
 df["Open"].plot()
+
+cols_plot = ["Open", "Close", "Low", "High"]
+df[cols_plot].plot(marker = ".", alpha = 0.5, subplots = True)
+
+# Closer look at 2017 December - Highest peak ever
+fig, ax = plt.subplots()
+
+ax.plot(df.loc["2017-12", "Open"], marker = "o", linestyle = "")
+ax.set_title("2017-12 BTC Open Prices")
+
+ax.xaxis.set_major_locator(mdates.WeekdayLocator(byweekday = mdates.MONDAY))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%b, %d"))
