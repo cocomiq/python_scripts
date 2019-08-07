@@ -39,14 +39,16 @@ URL = "http://mlr.cs.umass.edu/ml/machine-learning-databases/water-treatment/wat
 
 from pandas import read_table
 import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
+import seaborn as sns
 
-try:
-    # [OPTIONAL] Seaborn makes plots nicer
-    import seaborn
-except ImportError:
-    pass
+# try:
+#    # [OPTIONAL] Seaborn makes plots nicer
+#     import seaborn
+# except ImportError:
+#     pass
 
 
 # =====================================================================
@@ -392,15 +394,15 @@ if __name__ == '__main__':
     Xs = list(reduce_dimensions(X))
 
     # Normalize dimensions of the data
-    print("Normalizing dimensions")
-    Xn = list(normalize_dimensions(Xs))
+    # print("Normalizing dimensions")
+    # Xn = list(normalize_dimensions(Xs))
 
     # Standardize dimensions of the data
     print("Standardizing dimensions")
 
     # Evaluate multiple clustering learners on the data
     print("Evaluating clustering learners")
-    predictions = list(evaluate_learners(X))
+    predictions = list(evaluate_learners(Xs))
 
     # Display the results
     print("Plotting the results")
