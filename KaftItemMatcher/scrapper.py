@@ -1,13 +1,16 @@
 # ==========================================================================
 # Getting Item List
 # ==========================================================================
+import os
+import datetime
+import time
 import urllib3
 from bs4 import BeautifulSoup
-import os
 import pandas as pd
 import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+
 
 url = "https://www.kaft.com/erkek-tisort"
 
@@ -29,7 +32,7 @@ df.to_json(os.getcwd() + r"\KaftItemMatcher\items.json", orient = "records")
 # Getting wishlisted items from Wardrobe
 # ==========================================================================
 
-wardrobe = pd.read_json(r"C:\Users\acikgozs\Documents\Python Scripts\KaftItemMatcher\wardrobe.json")
+wardrobe = pd.read_json(os.getcwd() + r"\KaftItemMatcher\wardrobe.json")
 
 for index, row in wardrobe.iterrows():
     if np.isnan(row["wishlist"]):
@@ -47,21 +50,38 @@ wd_path = os.getcwd() + r"\KaftItemMatcher\chromedriver.exe"
 browser = webdriver.Chrome(wd_path)
 browser.get(matcher_url)
 
-# Enter Details - Erkek - L - Originals - Relax - Regular
+# Selection Criteria -> Erkek - L - Originals - Relax - Regular
 browser.find_element_by_class_name("size-image.large-men").click()
 browser.find_element_by_class_name("collection-image.original").click()
 browser.find_element_by_class_name("collection-image.minimal").click()
 browser.find_element_by_class_name("collection-image.street").click()
-browser.find_element_by_class_name("buton").click()
 
-# Get random items and check wishlist
-items = browser.find_elements_by_class_name("basicProductDisplay")
+result_list = []
+matched = 0
 
-#item_list = pd.DataFrame(columns = wardrobe.columns)
-item_list = []
+start_time = datetime.datetime.now()
 
-for item in items:
-    #item_list.append(wardrobe[wardrobe["id"] == item.get_attribute("productid")])
-    print(item.get_attribute("productid"))
-    item_list.append(item.get_attribute("productid"))
-    #print(wardrobe[wardrobe["id"] == item.get_attribute("productid")])
+while matched < 3 or  (datetime.datetime.now() - start_time).seconds < 60:
+    browser.find_element_by_class_name("buton").click()
+    items = browser.find_elements_by_class_name("basicProductDisplay")
+
+    item_list = []
+    match_list = []
+
+    for item in items:
+        item_list.append(int(item.get_attribute("productid")))
+        if wardrobe[(wardrobe["id"] == int(item.get_attribute("productid")))]["id"].size > 0:
+            match_list.append(1)
+        else:
+            match_list.append(0)
+
+    result_list.append(item_list + match_list + datetime.datetime.now())
+    matched = sum(match_list)
+    time.sleep(0.8)
+
+print(result_list)
+
+result_set = pd.DataFrame(result_list, columns = ["item_1", "item_2", "item_3", "matched_1", "matched_2", "matched_3", "result_date"])
+#result_set.to_json(os.getcwd() + r"\KaftItemMatcher\results.json", orient = "records")
+
+#browser.close()
