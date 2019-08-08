@@ -1,6 +1,3 @@
-# ==========================================================================
-# Getting Item List
-# ==========================================================================
 import os
 import datetime
 import time
@@ -11,6 +8,9 @@ import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 
+# ==========================================================================
+# Getting Item List
+# ==========================================================================
 
 url = "https://www.kaft.com/erkek-tisort"
 
@@ -61,8 +61,9 @@ matched = 0
 
 start_time = datetime.datetime.now()
 
-while matched < 3 or  (datetime.datetime.now() - start_time).seconds < 60:
+while matched < 3 and (datetime.datetime.now() - start_time).seconds < 30:
     browser.find_element_by_class_name("buton").click()
+    time.sleep(round(np.random.rand() + 0.6, 2))
     items = browser.find_elements_by_class_name("basicProductDisplay")
 
     item_list = []
@@ -75,13 +76,12 @@ while matched < 3 or  (datetime.datetime.now() - start_time).seconds < 60:
         else:
             match_list.append(0)
 
-    result_list.append(item_list + match_list + datetime.datetime.now())
+    result_list.append(item_list + match_list + [datetime.datetime.now()])
     matched = sum(match_list)
-    time.sleep(0.8)
-
-print(result_list)
 
 result_set = pd.DataFrame(result_list, columns = ["item_1", "item_2", "item_3", "matched_1", "matched_2", "matched_3", "result_date"])
 #result_set.to_json(os.getcwd() + r"\KaftItemMatcher\results.json", orient = "records")
+
+result_set
 
 #browser.close()
