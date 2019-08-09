@@ -17,7 +17,7 @@ url = "https://www.kaft.com/erkek-tisort"
 urlgetter = urllib3.PoolManager() 
 raw_html = urlgetter.request("GET", url)
 
-soup = BeautifulSoup(raw_html.data, 'html.parser')
+soup = BeautifulSoup(raw_html.data, "html.parser")
 product_data = soup.find_all("a", {"class":"basicProductDisplayLink"})
 
 products = []
@@ -45,7 +45,7 @@ for index, row in wardrobe.iterrows():
 # ==========================================================================
 
 matcher_url = "https://www.kaft.com/teemachine"
-wd_path = os.getcwd() + r"\KaftItemMatcher\chromedriver.exe"
+wd_path = os.getcwd() + r"\SeleniumChrome\chromedriver.exe"
 
 browser = webdriver.Chrome(wd_path)
 browser.get(matcher_url)
