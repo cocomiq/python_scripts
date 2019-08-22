@@ -163,39 +163,55 @@ for lnk in links_cat:
     break
 """
 # BACKUP CODE ##################################
+
+
+# OLD CODE ##################################
+
 url = "https://www.gratis.com/maskara/kategori/5010101"
 
 browser.get(url)
 time.sleep(2)
 
-brands = browser.find_elements_by_xpath("//div[@class = 'content']/div/input[1]")
-for brd in brands:
-    #brand = brd.find_element_by_xpath("//label/span").text
-    # Select brand filter
-    brd.find_element_by_xpath("//div[@class = 'form-group checkbox-structure']/input[1]").click()
-    
-    # While loop - unless next page link is disabled
-    #go_next = True
-    while True:
-        # Get items
-        items_page = BeautifulSoup(browser.page_source, "html.parser")
-        items_data = items_page.find_all("div", {"class":"g-product-cards"})
-        
-        # Item links
-        for ii in items_data:
-            items_info = ii.find("div", {"class":"infos"})
-            items_info.find("a")["href"]
+links_items = []
 
-        if items_page.find_all("a", {"class":"nav-btns next disabled"}):
-            #go_next = False
-            break
-        #else:
-            #browser.find_element_by_class_name("nav-btns next").click()
-            #time.sleep(2)
-        
-        # Go to next page
-        browser.find_element_by_class_name("nav-btns next").click()
-        time.sleep(2)
+brands_page = BeautifulSoup(browser.page_source, "html.parser")
+brands_data = brands_page.find_all("div", {"class":"list-filter-cards active"})
+
+for brd in brands_data:
+    if brd.div.span.text == "Markalar":
+        brands = brd.find_all("div", {"class":"form-group checkbox-structure"})
+
+
+url = "https://www.gratis.com/maskara/kategori/5010101"
+
+browser.get(url)
+time.sleep(2)
+
+links_items = []
+
+# While loop - unless next page link is disabled
+#go_next = True
+while True:
+    # Get items
+    items_page = BeautifulSoup(browser.page_source, "html.parser")
+    items_data = items_page.find_all("div", {"class":"g-product-cards"})
     
-    # Unselect brand filter
-    brd.find_element_by_xpath("//div[@class = 'form-group checkbox-structure']/input[1]").click()
+    # Item links
+    for ii in items_data:
+        items_info = ii.find("div", {"class":"infos"})
+        #category code, name, link
+        #url_list[2], items_info.find("a").text.strip(), "https://www.gratis.com" + items_info.find("a")["href"]
+        links_items.append([items_info.find("a").text.strip(), "https://www.gratis.com" + items_info.find("a")["href"]])
+
+    if items_page.find_all("a", {"class":"nav-btns next disabled"}):
+        #go_next = False
+        break
+    #else:
+        #browser.find_element_by_class_name("nav-btns next").click()
+        #time.sleep(2)
+    
+    # Go to next page
+    browser.find_element_by_class_name("nav-btns.next").click()
+    time.sleep(2)
+
+links_items
