@@ -122,7 +122,7 @@ def get_gratis_item_details(browser, url_list):
     browser.get(url_list[4])
     time.sleep(2)
 
-    links_details = []
+    item_details = []
 
     return False
 

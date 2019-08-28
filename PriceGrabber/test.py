@@ -215,3 +215,50 @@ while True:
     time.sleep(2)
 
 links_items
+
+
+url = "https://www.gratis.com/thebalm-meet-matte-hughes-liquid-lipstick-ruj/urun/thebalm1007?sku=10025061"
+
+browser.get(url)
+time.sleep(2)
+
+item_details = []
+
+item_page = BeautifulSoup(browser.page_source, "html.parser")
+
+item_details = item_page.find("div", {"class":"col-md-7 col-sm-7 col-xs-12"})
+item_defs = item_page.find("div", {"class":"content active"})
+item_stickers = item_page.find("div", {"id":"image-viewer"})
+
+# Item brand
+item_details.find("a", {"class":"manufacturer"}).text
+# Item brand link
+item_details.find("a", {"class":"manufacturer"})["href"]
+# Item ID
+item_def = item_defs.find_all("td")
+item_def[1].text
+# Item name
+item_details.h1.text
+# Item link
+url
+# Item original price
+org_price = item_details.find("span", {"class":"gr-price pdp-price gr-price_greyed gr-price_crossed"})
+org_price.find("span", {"class":"gr-price__amount"}).text
+org_price.find("span", {"class":"gr-price__fractional"}).text
+# Item sales price
+item_price =  item_details.find("g-price", {"class":"pdp-price pdp-price-main"})
+item_price.find("span", {"class":"gr-price__amount"}).text
+item_price.find("span", {"class":"gr-price__fractional"}).text
+# Item colors
+
+# Item definition
+item_defs.div.text
+item_def
+# Item stickers
+item_stickers.find("img", {"class":"product-sticker product-sticker_top-right"})["src"]
+# Sold together with
+sold_with = item_page.find("div", {"id":"carousel-id-wi300120"})
+sw_links = sold_with.find_all("a", {"class":"search-product-link"})
+
+for sw in sw_links:
+    print(sw["href"])
