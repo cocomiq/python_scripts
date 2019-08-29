@@ -132,6 +132,7 @@ def get_gratis_item_details(browser, url_list):
 
 wd_path = os.getcwd() + r"\SeleniumChrome\chromedriver.exe"
 browser = webdriver.Chrome(wd_path)
+browser.maximize_window()
 url = "https://www.gratis.com"
 
 links_all = []
