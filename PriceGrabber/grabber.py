@@ -115,8 +115,7 @@ def get_gratis_sub_links(browser, links_in):
 
 def get_gratis_item_details(browser, url_list):
     """
-    Gets detailed item prices
-    First filters page by brand and then retrieves prices including promotions
+    Gets detailed item prices from item page
     """
 
     browser.get(url_list[4])
