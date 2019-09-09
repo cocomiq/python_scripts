@@ -218,7 +218,7 @@ while True:
 links_items
 
 
-url = "https://www.gratis.com/palette-deluxe-sac-boyasi/urun/Palette1001?sku=12000547"
+url = "https://www.gratis.com/maybelline-new-york-super-stay-ink-crayon-kalem-mat-ruj/urun/Maybelline1068?sku=10199285"
 
 browser.get(url)
 time.sleep(2)
@@ -240,14 +240,18 @@ item_details.h1.text
 url
 # If exists Item original price
 org_price = item_details.find("span", {"class":"gr-price pdp-price gr-price_greyed gr-price_crossed"})
-org_price.find("span", {"class":"gr-price__amount"}).text
-org_price.find("span", {"class":"gr-price__fractional"}).text
+if org_price:
+    org_price.find("span", {"class":"gr-price__amount"}).text
+    org_price.find("span", {"class":"gr-price__fractional"}).text
 # Item sales price
 item_price =  item_details.find("g-price", {"class":"pdp-price pdp-price-main"})
 item_price.find("span", {"class":"gr-price__amount"}).text
 item_price.find("span", {"class":"gr-price__fractional"}).text
 # Item colors
-browser.find_element_by_class_name("color-toggle").click()
+try:
+    browser.find_element_by_class_name("color-toggle").click()
+except:
+    pass
 
 item_colors = item_details.find_all("a", {"class":"gratis-color"})
 for ic in item_colors:
