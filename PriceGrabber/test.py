@@ -1,7 +1,6 @@
 import os
 import time
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from bs4 import BeautifulSoup
 import pandas as pd
 
@@ -218,10 +217,18 @@ while True:
 links_items
 
 
-url = "https://www.gratis.com/maybelline-new-york-super-stay-ink-crayon-kalem-mat-ruj/urun/Maybelline1068?sku=10199285"
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
+
+url = "https://www.gratis.com/maybelline-new-york-fit-me-matteporeless-fondoten/urun/Maybelline1021?sku=10190664"
 
 browser.get(url)
-time.sleep(2)
+
+if WebDriverWait(browser, 10, 0.25).until(
+    ec.presence_of_element_located((By.CLASS_NAME, "col-md-7.col-sm-7.col-xs-12"))
+):
+    print("Page is loaded")
 
 item_page = BeautifulSoup(browser.page_source, "html.parser")
 item_details = item_page.find("div", {"class":"col-md-7 col-sm-7 col-xs-12"})
@@ -260,7 +267,7 @@ for ic in item_colors:
 item_page.find("div", {"data-bind":"html: product().longDescription"})
 item_defs.find_all("tr")
 # Item review count
-
+# Create a review scrapper function and call it
 # Item promotions
 item_promos = item_page.find_all("img", {"alt":"Promo sticker"})
 
