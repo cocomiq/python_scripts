@@ -113,12 +113,12 @@ def get_gratis_sub_links(browser, links_in):
 # Get item details
 # ==========================================================================
 
-def get_gratis_item_details(browser, url_list):
+def get_gratis_item_details(browser, item_list):
     """
     Gets detailed item prices from item page
     """
 
-    browser.get(url_list[4])
+    browser.get(item_list[4])
     time.sleep(2)
 
     item_details = []

@@ -217,11 +217,14 @@ while True:
 links_items
 
 
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 
 url = "https://www.gratis.com/maybelline-new-york-fit-me-matteporeless-fondoten/urun/Maybelline1021?sku=10190664"
+
+item_details = []
 
 browser.get(url)
 
@@ -252,8 +255,7 @@ if org_price:
     org_price.find("span", {"class":"gr-price__fractional"}).text
 # Item sales price
 item_price =  item_details.find("g-price", {"class":"pdp-price pdp-price-main"})
-item_price.find("span", {"class":"gr-price__amount"}).text
-item_price.find("span", {"class":"gr-price__fractional"}).text
+item_price.find("span", {"class":"gr-price__amount"}).text + item_price.find("span", {"class":"gr-price__fractional"}).text.replace(",", ".").strip()
 # Item colors
 try:
     browser.find_element_by_class_name("color-toggle").click()
