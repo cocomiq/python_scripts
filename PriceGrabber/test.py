@@ -1,6 +1,9 @@
 import os
 import time
 from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 from bs4 import BeautifulSoup
 import pandas as pd
 
@@ -218,79 +221,150 @@ links_items
 
 
 
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
 
-url = "https://www.gratis.com/maybelline-new-york-fit-me-matteporeless-fondoten/urun/Maybelline1021?sku=10190664"
+#url = "https://www.gratis.com/loreal-paris-unlimited-maskara/urun/Lorealparis1068?sku=10127816"
+url = "https://www.gratis.com/benri-disk-pamuk-140-adet/urun/10042263?sku=10042263"
 
 item_details = []
 
 browser.get(url)
 
 if WebDriverWait(browser, 10, 0.25).until(
-    ec.presence_of_element_located((By.CLASS_NAME, "col-md-7.col-sm-7.col-xs-12"))
-):
-    print("Page is loaded")
+        ec.presence_of_element_located((By.CLASS_NAME, "col-md-7.col-sm-7.col-xs-12"))
+    ):
+    item_page = BeautifulSoup(browser.page_source, "html.parser")
+    item_details = item_page.find("div", {"class":"col-md-7 col-sm-7 col-xs-12"})
+    item_stickers = item_page.find("div", {"id":"image-viewer"})
+    item_defs = item_page.find("table", {"class":"specs-table"})
+    item_price =  item_details.find("g-price", {"class":"pdp-price pdp-price-main"})
 
-item_page = BeautifulSoup(browser.page_source, "html.parser")
-item_details = item_page.find("div", {"class":"col-md-7 col-sm-7 col-xs-12"})
-item_stickers = item_page.find("div", {"id":"image-viewer"})
+    # Original price check
+    org_price = item_details.find("span", {"class":"gr-price pdp-price gr-price_greyed gr-price_crossed"})
+    if org_price:
+        o_price = org_price.find("span", {"class":"gr-price__amount"}).text + org_price.find("span", {"class":"gr-price__fractional"}).text.replace(",", ".").strip()
+    else:
+        o_price = -1
 
-# Item brand
-item_details.find("a", {"class":"manufacturer"}).text
-# Item brand link
-item_details.find("a", {"class":"manufacturer"})["href"]
-# Item ID
-item_defs = item_page.find("table", {"class":"specs-table"})
-item_defs.find("td", {"data-bind":"text: value"}).text
-# Item name
-item_details.h1.text
-# Item link
-url
-# If exists Item original price
-org_price = item_details.find("span", {"class":"gr-price pdp-price gr-price_greyed gr-price_crossed"})
-if org_price:
-    org_price.find("span", {"class":"gr-price__amount"}).text
-    org_price.find("span", {"class":"gr-price__fractional"}).text
-# Item sales price
-item_price =  item_details.find("g-price", {"class":"pdp-price pdp-price-main"})
-item_price.find("span", {"class":"gr-price__amount"}).text + item_price.find("span", {"class":"gr-price__fractional"}).text.replace(",", ".").strip()
-# Item colors
-try:
-    browser.find_element_by_class_name("color-toggle").click()
-except:
-    pass
+    # Loyalty price check
+    loyalty_price =  item_details.find("span", {"class":"gr-price loyalty-price"})
+    if loyalty_price:
+        l_price = loyalty_price.find("span", {"class":"gr-price__amount"}).text + loyalty_price.find("span", {"class":"gr-price__fractional"}).text.replace(",", ".").strip()
+    else:
+        l_price = -1
 
-item_colors = item_details.find_all("a", {"class":"gratis-color"})
-for ic in item_colors:
-    print(ic["data-color"])
-# Item definition
-item_page.find("div", {"data-bind":"html: product().longDescription"})
-item_defs.find_all("tr")
-# Item review count
-# Create a review scrapper function and call it
-# Item promotions
-item_promos = item_page.find_all("img", {"alt":"Promo sticker"})
+    # Colors
+    try:
+        browser.find_element_by_class_name("color-toggle").click()
+    except:
+        pass
 
-for ip in item_promos:
-    print(ip["src"])
+    oos_color = []
+    color = []
 
-browser.find_element_by_css_selector('.modifier-nav.type1.mobile-hidden li:nth-of-type(4)').click()
+    item_colors = item_details.find_all("a", {"class":"gratis-color"})
+    for ic in item_colors:
+        if ic["class"] == ["gratis-color", "no-stock"]:
+            oos_color.append(ic["data-color"])
+        else:
+            color.append(ic["data-color"])
 
-# Item stickers
-item_stickers.find("img", {"class":"product-sticker product-sticker_top-right"})["src"]
+    # Definitions
+    item_page.find("div", {"data-bind":"html: product().longDescription"}).text
+    def_attr = item_defs.find_all("tr")
 
-# Sold together with
-sold_with = item_page.find("div", {"id":"carousel-id-wi300120"})
-sw_links = sold_with.find_all("a", {"class":"search-product-link"})
+    def_name = []
+    def_value = []
+    for da in def_attr:
+        def_name.append(da.find("td", {"data-bind":"text: name"}).text)
+        def_value.append(da.find("td", {"data-bind":"text: value"}).text)
 
-for sw in sw_links:
-    print(sw["href"][sw["href"].find("=")+1:])
+    # Review info if exists
+    review_info = item_page.find("div", {"class":"bv-percent-recommend-container"})
+    if review_info:
+        review_counts = review_info.text.strip()
+        review_grades = item_page.find_all("span", {"class":"bv-secondary-rating-summary-rating"})
+    else:
+        review_counts = ""
+        review_grades = []
+    
+    # Recommends
+    review_counts[:review_counts.find(" ")]
+    # Votes
+    review_counts[review_counts.find("(") + 1 : review_counts.find(")")]
+    # Avg rating
+    # General, quality, value
+    ratings = []
+    for rg in review_grades:
+        ratings.append(rg.text.strip())
 
-# Related products
-rel_items = item_page.find("div", {"id":"carousel-id-wi300119"})
-ri_links = sold_with.find_all("a", {"class":"search-product-link"})
+    # Promotions
+    item_promos = item_page.find_all("img", {"alt":"Promo sticker"})
+    promo_def = item_page.find("div", {"class":"campaign-card"})
 
-for ri in ri_links:
-    print(ri["href"][ri["href"].find("=")+1:])
+    promos = []
+
+    for ip in item_promos:
+        promos.append(ip["src"])
+    
+    if promo_def:
+        campaigns = promo_def.text
+    else:
+        campaigns = ""
+
+    # Sold together with
+    sold_with = item_page.find("div", {"id":"carousel-id-wi300120"})
+    sw_links = sold_with.find_all("a", {"class":"search-product-link"})
+
+    sw_items = []
+
+    for sw in sw_links:
+        sw_items.append(sw["href"][sw["href"].find("=")+1:])
+
+    # Related products
+    rel_items = item_page.find("div", {"id":"carousel-id-wi300119"})
+    ri_links = rel_items.find_all("a", {"class":"search-product-link"})
+
+    ri_items = []
+
+    for ri in ri_links:
+        ri_items.append(ri["href"][ri["href"].find("=")+1:])
+
+    # Category
+    #item_list[0]
+    # Brand
+    item_details.find("a", {"class":"manufacturer"}).text
+    # Brand link
+    "https://www.gratis.com" + item_details.find("a", {"class":"manufacturer"})["href"]
+    # ID
+    item_defs.find("td", {"data-bind":"text: value"}).text
+    # Name
+    item_details.h1.text
+    # Link
+    url
+    # Original price if exists
+    o_price
+    # Sales price
+    item_price.find("span", {"class":"gr-price__amount"}).text + item_price.find("span", {"class":"gr-price__fractional"}).text.replace(",", ".").strip()
+    # Loyalty price if exists
+    l_price
+    # Colors
+    color
+    oos_color
+    # Definitions
+    def_name
+    def_value
+    # Recommends
+    review_counts[:review_counts.find(" ")]
+    # Votes
+    review_counts[review_counts.find("(") + 1 : review_counts.find(")")]
+    # Avg Rating
+    ratings
+    # Promotions
+    promos
+    campaigns
+    # Stickers
+    item_stickers.find("img", {"class":"product-sticker product-sticker_top-right"})["src"]
+    # Sold together with items
+    sw_items
+    # Related items
+    ri_items

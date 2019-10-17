@@ -85,7 +85,6 @@ def get_gratis_sub_links(browser, links_in):
 
         else:
             # While loop - unless next page link is disabled
-            #go_next = True
             while True:
                 # Get items
                 items_page = BeautifulSoup(browser.page_source, "html.parser")
@@ -99,12 +98,9 @@ def get_gratis_sub_links(browser, links_in):
                 if items_page.find_all("a", {"class":"nav-btns next disabled"}):
                     #go_next = False
                     break
-                #else:
-                    #browser.find_element_by_class_name("nav-btns next").click()
-                    #time.sleep(2)
-                
-                # Go to next page
+
                 browser.find_element_by_class_name("nav-btns.next").click()
+                #if page is laoded contidition will be added
                 time.sleep(2)
 
     return links_sc, links_items
@@ -118,9 +114,7 @@ def get_gratis_item_details(browser, item_list):
     Gets detailed item prices from item page
     """
 
-    browser.get(item_list[4])
-    time.sleep(2)
-
+    browser.get(item_list[2])
     item_details = []
 
     return False
