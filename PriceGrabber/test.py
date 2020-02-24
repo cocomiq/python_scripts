@@ -168,7 +168,7 @@ for lnk in links_cat:
 # BACKUP CODE ##################################
 
 
-# OLD CODE ##################################
+# NEW CODE ##################################
 
 url = "https://www.gratis.com/maskara/kategori/5010101"
 
@@ -190,10 +190,63 @@ url = "https://www.gratis.com/maskara/kategori/5010101"
 browser.get(url)
 time.sleep(2)
 
+links_sc = []
 links_items = []
 
-# While loop - unless next page link is disabled
-#go_next = True
+# If show all link exists, click on it to extend sub category list
+try:
+    browser.find_element_by_class_name("show-all").click()
+except:
+    pass
+
+sub_page = BeautifulSoup(browser.page_source, "html.parser")
+links_data = sub_page.find_all("ul", {"class":"content"})
+links_raw = links_data[0].find_all("a")
+
+links_sub = []
+
+if links_raw:
+    for slnk in links_raw:
+        cat_code = slnk.get("href")[slnk.get("href").rfind("/") + 1:]
+        
+        if slnk.text == " ":
+            link_text = slnk.get("href")[1:slnk.get("href").find("/", 2)]
+        else:
+            link_text = slnk.text.strip("\n")
+        
+        if cat_code.isdigit():
+            links_sub.append([cat_code[0:3], cat_code[0:len(cat_code) - 2], cat_code, link_text, "https://www.gratis.com" + slnk.get("href")])
+
+    links_sc.append(links_sub)
+
+    # Retrieving minor sub categories
+    #links_sc.append(get_gratis_sub_links(browser, links_sub))
+
+else:
+    # While loop - unless next page link is disabled
+    while True:
+        # Get items
+        items_page = BeautifulSoup(browser.page_source, "html.parser")
+        items_data = items_page.find_all("div", {"class":"g-product-cards"})
+        
+        # Item links
+        for ii in items_data:
+            items_info = ii.find("div", {"class":"infos"})
+            links_items.append([lnk[2], items_info.find("a").text.strip(), "https://www.gratis.com" + items_info.find("a")["href"]])
+
+        if items_page.find_all("a", {"class":"nav-btns next disabled"}):
+            break
+
+        browser.find_element_by_class_name("nav-btns.next").click()
+        # Is page loaded completely
+        WebDriverWait(browser, 10, 0.25).until(
+            ec.presence_of_element_located((By.CLASS_NAME, "col-md-4.col-sm-4.col-xs-6.product-card-wrapper"))
+        )
+
+links_items
+
+
+
 while True:
     # Get items
     items_page = BeautifulSoup(browser.page_source, "html.parser")
@@ -202,30 +255,32 @@ while True:
     # Item links
     for ii in items_data:
         items_info = ii.find("div", {"class":"infos"})
-        #category code, name, link
-        #url_list[2], items_info.find("a").text.strip(), "https://www.gratis.com" + items_info.find("a")["href"]
-        links_items.append([items_info.find("a").text.strip(), "https://www.gratis.com" + items_info.find("a")["href"]])
+        links_items.append(["asd", items_info.find("a").text.strip(), "https://www.gratis.com" + items_info.find("a")["href"]])
 
     if items_page.find_all("a", {"class":"nav-btns next disabled"}):
-        #go_next = False
         break
-    #else:
-        #browser.find_element_by_class_name("nav-btns next").click()
-        #time.sleep(2)
-    
-    # Go to next page
+
     browser.find_element_by_class_name("nav-btns.next").click()
-    time.sleep(2)
+    
+    WebDriverWait(browser, 10, 0.25).until(
+        ec.presence_of_element_located((By.CLASS_NAME, "col-md-4.col-sm-4.col-xs-6.product-card-wrapper"))
+    )
 
-links_items
 
 
-
-
-#url = "https://www.gratis.com/loreal-paris-unlimited-maskara/urun/Lorealparis1068?sku=10127816"
-url = "https://www.gratis.com/benri-disk-pamuk-140-adet/urun/10042263?sku=10042263"
+url = "https://www.gratis.com/physicians-formula-sexy-booster-cat-eye-collection-maskara/urun/10110169?sku=10110169"
+#url = "https://www.gratis.com/benri-disk-pamuk-140-adet/urun/10042263?sku=10042263"
 
 item_details = []
+
+itemDetails = pd.DataFrame(columns = [
+    "category", "brand", "brandlink", "id", "name", "link", 
+    "originalprice", "salesprice", "loyaltyprice", 
+    "colors", "ooscolors", 
+    "definitionname", "definition", 
+    "recommendations", "votes", "avgrating", 
+    "promotions", "campaigns", "stickercampaign", 
+    "soldwith", "relateditems"])
 
 browser.get(url)
 
