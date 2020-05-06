@@ -1,7 +1,6 @@
 import os
 import datetime
 import time
-import urllib3
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
@@ -12,12 +11,14 @@ from selenium.webdriver.common.keys import Keys
 # Getting Item List
 # ==========================================================================
 
+wd_path = os.path.dirname(os.getcwd()) + r"\SeleniumChrome\chromedriver.exe"
+browser = webdriver.Chrome(wd_path)
+
 url = "https://www.kaft.com/erkek-tisort"
+browser.get(url)
 
-urlgetter = urllib3.PoolManager() 
-raw_html = urlgetter.request("GET", url)
-
-soup = BeautifulSoup(raw_html.data, "html.parser")
+# soup = BeautifulSoup(raw_html.data, "html.parser")
+soup = BeautifulSoup(browser.page_source, "html.parser")
 product_data = soup.find_all("a", {"class":"basicProductDisplayLink"})
 
 products = []
@@ -26,13 +27,13 @@ for prd in product_data:
     products.append([prd.get("href"), prd.get("data-id"), prd.get("data-name"), prd.get("data-brand"), prd.get("data-variant"), prd.get("data-price"), prd.get("data-category")])
 
 df = pd.DataFrame(products, columns = ["web_address", "id", "name", "brand", "type", "price", "category"])
-df.to_json(os.getcwd() + r"\KaftItemMatcher\items.json", orient = "records")
+df.to_json(os.path.dirname(os.getcwd()) + r"\KaftItemMatcher\items.json", orient = "records")
 
 # ==========================================================================
 # Getting wishlisted items from Wardrobe
 # ==========================================================================
 
-wardrobe = pd.read_json(os.getcwd() + r"\KaftItemMatcher\wardrobe.json")
+wardrobe = pd.read_json(os.path.dirname(os.getcwd()) + r"\KaftItemMatcher\wardrobe.json")
 
 for index, row in wardrobe.iterrows():
     if np.isnan(row["wishlist"]):
@@ -44,10 +45,10 @@ for index, row in wardrobe.iterrows():
 # Automatic Item Matcher
 # ==========================================================================
 
-matcher_url = "https://www.kaft.com/teemachine"
-wd_path = os.getcwd() + r"\SeleniumChrome\chromedriver.exe"
-
+wd_path = os.path.dirname(os.getcwd()) + r"\SeleniumChrome\chromedriver.exe"
 browser = webdriver.Chrome(wd_path)
+
+matcher_url = "https://www.kaft.com/teemachine"
 browser.get(matcher_url)
 
 # Selection Criteria -> Erkek - L - Originals - Relax - Regular
