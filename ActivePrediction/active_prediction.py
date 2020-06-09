@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 import xgboost as xgb
@@ -5,8 +6,11 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import mean_squared_error
 from sklearn.metrics import precision_score
 from sklearn.model_selection import train_test_split
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 import pickle
-import matplotlib as plt
+import graphviz
 
 # ==========================================================================
 # Load and prepare data
@@ -39,10 +43,10 @@ eval_set = [(x_train, y_train), (x_test, y_test)]
 eval_metric = ["auc","error"]
 
 #%time xgb_reg.fit(X_train, y_train, eval_metric = eval_metric, eval_set = eval_set, verbose = True)
-
-xgb_reg.load_model("active_xgb_save.model")
-#xgb_reg = pickle.load(open("active.model", 'rb'))
 #xgb_reg.fit(x_train, y_train)
+
+xgb_reg.load_model(os.path.dirname(os.getcwd()) + r"\ActivePrediction\active_xgb_save.model")
+#xgb_reg = pickle.load(open("active.model", 'rb'))
 
 preds = xgb_reg.predict(x_test)
 
@@ -70,11 +74,12 @@ xgb_reg.save_model("active_xgb_save.model")
 # Charts
 # ==========================================================================
 
-xgb.plot_tree(xgb_reg, num_trees = 0)
 plt.rcParams['figure.figsize'] = [50, 10]
+xgb.plot_tree(xgb_reg, num_trees = 0)
 
-xgb.plot_importance(xgb_reg)
+
 plt.rcParams['figure.figsize'] = [5, 5]
+xgb.plot_importance(xgb_reg)
 
 # ==========================================================================
 # Single campaign results
@@ -84,13 +89,14 @@ dfp = pd.read_csv(r"C:\Users\acikgozs\Documents\active_prediction202002.csv", se
 
 dfp.head()
 
-dfp.dropna()
+dfp.dropna(inplace = True)
 dfp = dfp[dfp["AGE"] > 0]
-dfp.reset_index()
+dfp.reset_index(inplace = True)
+dfp.drop("index", axis = 1, inplace = True)
 
 x = dfp.iloc[:,3:]
 #y = dfp.iloc[:,2:3]
 
 preds = xgb_reg.predict(x)
 
-pd.DataFrame(preds, dfp["ACCOUNT_NUMBER"]).to_csv("2020C3_pred.csv")
+pd.DataFrame(preds, dfp["ACCOUNT_NUMBER"]).to_csv("2020C2_pred.csv")

@@ -1,11 +1,13 @@
 import os
 import datetime
-import time
 from bs4 import BeautifulSoup
 import pandas as pd
 import numpy as np
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 
 # ==========================================================================
 # Getting Item List
@@ -13,20 +15,26 @@ from selenium.webdriver.common.keys import Keys
 
 wd_path = os.path.dirname(os.getcwd()) + r"\SeleniumChrome\chromedriver.exe"
 browser = webdriver.Chrome(wd_path)
+browser.maximize_window()
 
 url = "https://www.kaft.com/erkek-tisort"
 browser.get(url)
 
 # soup = BeautifulSoup(raw_html.data, "html.parser")
+browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+WebDriverWait(browser, 10, 0.25).until(
+        ec.presence_of_element_located((By.CLASS_NAME, "primaryImage"))
+    )
+
 soup = BeautifulSoup(browser.page_source, "html.parser")
 product_data = soup.find_all("a", {"class":"basicProductDisplayLink"})
 
 products = []
 
 for prd in product_data:
-    products.append([prd.get("href"), prd.get("data-id"), prd.get("data-name"), prd.get("data-brand"), prd.get("data-variant"), prd.get("data-price"), prd.get("data-category")])
+    products.append([prd.get("href"), prd.get("data-id"), prd.get("data-name"), prd.get("data-brand"), prd.get("data-variant"), prd.get("data-price"), prd.get("data-category"), prd.find("img").get("src")[:prd.find("img").get("src").find("?")]])
 
-df = pd.DataFrame(products, columns = ["web_address", "id", "name", "brand", "type", "price", "category"])
+df = pd.DataFrame(products, columns = ["web_address", "id", "name", "brand", "type", "price", "category", "img_address"])
 df.to_json(os.path.dirname(os.getcwd()) + r"\KaftItemMatcher\items.json", orient = "records")
 
 # ==========================================================================
