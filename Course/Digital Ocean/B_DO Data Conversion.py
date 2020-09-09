@@ -36,7 +36,7 @@ def new_func():
     new = 1
 
     #global variable
-#    global var
+    #global var
     var = 2
 
     print(new)
